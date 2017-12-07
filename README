@@ -1,0 +1,8 @@
+README
+
+libredex - a quick hack to index libreum JSON messages by keyword, nick etc.
+
+Librecast knows nothing about the content of messages.  It could be any kind of
+binary data, so without further knowledge it can't index the contents.  This is
+a simple program to parse the JSON format messages from libreUM and write
+appropriate indexes.
