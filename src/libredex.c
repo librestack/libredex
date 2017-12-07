@@ -37,14 +37,13 @@
 #define SHA_DIGEST_LENGTH 20
 #endif
 
-
 int main(int argc, char **argv)
 {
 	int i;
 	int mode;
 	int msgs;
 	int rc = 0;
-	char *keyword = NULL;
+	char *key = NULL;
 	lc_ctx_t *ctx;
 	lc_query_t *q = NULL;
 	lc_messagelist_t *msglist = NULL, *msg;
@@ -53,7 +52,6 @@ int main(int argc, char **argv)
 	cJSON *text = NULL;
 
 	ctx = lc_ctx_new();
-
 	rc = lc_query_new(ctx, &q);
 
 	assert(rc == 0);
@@ -64,10 +62,8 @@ int main(int argc, char **argv)
 	/* find highest indexed timestamp in some index */
 	/* use that as a starting point */
 
-	//uint64_t v = 1512589272602122609; /* <--- find an appropriate value for this */
-	uint64_t v = 0; /* <--- find an appropriate value for this */
+	uint64_t v = 0; /* <--- TODO: find an appropriate value for this */
 	lc_query_push(q, LC_QUERY_TIME | LC_QUERY_GT, &v);
-	
 	msgs = lc_query_exec(q, &msglist);
 
 	/* write indexes for messages */
@@ -75,6 +71,13 @@ int main(int argc, char **argv)
 		root = cJSON_Parse(msg->data);
 		if (root == NULL)
 			continue;
+
+		/* show user which message we're indexing */
+		printf("%" PRIu64 " ", msg->timestamp);
+		for (i = 0; i < 20; ++i) {
+			printf("%02x", ((unsigned char *)msg->hash)[i]);
+		}
+		printf(" %s\n", (char *)msg->data);
 
 		nick = cJSON_GetObjectItemCaseSensitive(root, "nick");
 		text = cJSON_GetObjectItemCaseSensitive(root, "text");
@@ -85,26 +88,22 @@ int main(int argc, char **argv)
 			rc = lc_db_idx(ctx, "message", "nick", msg->hash, SHA_DIGEST_LENGTH, nick->valuestring, strlen(nick->valuestring), mode);
 			if (rc != 0)
 				fprintf(stderr, "nick index failed\n");
+			else
+				fprintf(stderr, "\tnick: %s\n", nick->valuestring);
 		}
 
-		/* TODO: index by keyword */
+		/* index by keyword */
+		key = strtok(text->valuestring, " ");
+		while (key != NULL) {
+			fprintf(stderr, "\tkey: %s\n", key);
+			rc = lc_db_idx(ctx, "message", "keyword", msg->hash, SHA_DIGEST_LENGTH, key, strlen(key), mode);
+			if (rc != 0)
+				fprintf(stderr, "error writing index key %s\n", key);
+
+			key = strtok(NULL, " ");
+		}
 
 		cJSON_Delete(root);
-
-		/* show user which message we're indexing */
-		printf("%" PRIu64 " ", msg->timestamp);
-		for (i = 0; i < 20; ++i) {
-			printf("%02x", ((unsigned char *)msg->hash)[i]);
-		}
-		printf(" %s\n", (char *)msg->data);
-
-
-		/* TODO: loop through keywords */
-		if (keyword) {
-			rc = lc_db_idx(ctx, "message", "keyword", msg->hash, SHA_DIGEST_LENGTH, keyword, strlen(keyword), mode);
-		}
-
-		free(keyword);
 
 	}
 	printf("Returned %i msgs\n", msgs);
