@@ -37,6 +37,8 @@
 #define SHA_DIGEST_LENGTH 20
 #endif
 
+#define TOKSEP "?!\"'$%^&*()-_=+[]{};:@~#,.<>/\\|` "
+
 int main(int argc, char **argv)
 {
 	int i;
@@ -85,7 +87,8 @@ int main(int argc, char **argv)
 
 		/* index by nick */
 		if (nick != NULL) {
-			rc = lc_db_idx(ctx, "message", "nick", msg->hash, SHA_DIGEST_LENGTH, nick->valuestring, strlen(nick->valuestring), mode);
+			rc = lc_db_idx(ctx, "message", "nick", msg->hash, SHA_DIGEST_LENGTH,
+				nick->valuestring, strlen(nick->valuestring), mode);
 			if (rc != 0)
 				fprintf(stderr, "nick index failed\n");
 			else
@@ -93,14 +96,15 @@ int main(int argc, char **argv)
 		}
 
 		/* index by keyword */
-		key = strtok(text->valuestring, " ");
+		key = strtok(text->valuestring, TOKSEP);
 		while (key != NULL) {
 			fprintf(stderr, "\tkey: %s\n", key);
-			rc = lc_db_idx(ctx, "message", "keyword", msg->hash, SHA_DIGEST_LENGTH, key, strlen(key), mode);
+			rc = lc_db_idx(ctx, "message", "keyword", msg->hash, SHA_DIGEST_LENGTH,
+				key, strlen(key), mode);
 			if (rc != 0)
 				fprintf(stderr, "error writing index key %s\n", key);
 
-			key = strtok(NULL, " ");
+			key = strtok(NULL, TOKSEP);
 		}
 
 		cJSON_Delete(root);
