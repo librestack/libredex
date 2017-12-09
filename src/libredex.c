@@ -40,22 +40,11 @@
 
 #define TOKSEP " "
 
-/* The strmove() function is equivalent to strcpy, but safe to use with
- * overlapping src and dest
- */
-char *strmove(char *dest, const char *src)
-{
-	size_t len = strlen(src);
-	memmove(dest, src, len);
-	*(dest+len) = '\0';
-	return dest;
-}
-
 void alphastrip(char *p)
 {
 	for (; *p; ++p) {
 		if (!isalpha(*p)) {
-			strmove(p, p+1);
+			memmove(p, p+1, strlen(p+1) + 1);
 			alphastrip(p);
 		}
 	}
