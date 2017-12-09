@@ -110,7 +110,7 @@ int main(int argc, char **argv)
 		cJSON_Delete(root);
 
 	}
-	printf("Returned %i msgs\n", msgs);
+	printf("Indexed %i msgs\n", msgs);
 
 	/* clean up */
 	lc_msglist_free(msglist);
