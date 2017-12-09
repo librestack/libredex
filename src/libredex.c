@@ -75,6 +75,8 @@ int main(int argc, char **argv)
 	cJSON *nick = NULL;
 	cJSON *text = NULL;
 
+	while(1) { /* FIXME: temporary hack */
+
 	ctx = lc_ctx_new();
 	rc = lc_query_new(ctx, &q);
 
@@ -141,6 +143,14 @@ int main(int argc, char **argv)
 	lc_msglist_free(msglist);
 	lc_query_free(q);
 	lc_ctx_free(ctx);
+
+	msglist = NULL;
+	q = NULL;
+	ctx = NULL;
+
+	sleep(1);
+	} /* FIXME: temporary hack */
+
 
 	return 0;
 }
