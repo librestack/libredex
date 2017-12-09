@@ -22,6 +22,7 @@
 
 #define _GNU_SOURCE
 #include <assert.h>
+#include <ctype.h>
 #include <endian.h>
 #include <inttypes.h>
 #include <librecast.h>
@@ -38,6 +39,12 @@
 #endif
 
 #define TOKSEP "?!\"'$%^&*()-_=+[]{};:@~#,.<>/\\|` "
+
+void cleantoken(char *tok)
+{
+	char *p;
+	for (p = tok; *p; ++p) *p = tolower(*p);
+}
 
 int main(int argc, char **argv)
 {
@@ -87,8 +94,10 @@ int main(int argc, char **argv)
 
 		/* index by nick */
 		if (nick != NULL) {
+			key = nick->valuestring;
+			cleantoken(key);
 			rc = lc_db_idx(ctx, "message", "nick", msg->hash, SHA_DIGEST_LENGTH,
-				nick->valuestring, strlen(nick->valuestring), mode);
+				key, strlen(key), mode);
 			if (rc != 0)
 				fprintf(stderr, "nick index failed\n");
 			else
@@ -98,6 +107,7 @@ int main(int argc, char **argv)
 		/* index by keyword */
 		key = strtok(text->valuestring, TOKSEP);
 		while (key != NULL) {
+			cleantoken(key);
 			fprintf(stderr, "\tkey: %s\n", key);
 			rc = lc_db_idx(ctx, "message", "keyword", msg->hash, SHA_DIGEST_LENGTH,
 				key, strlen(key), mode);
