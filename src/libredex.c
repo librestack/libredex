@@ -40,11 +40,19 @@
 
 #define TOKSEP " "
 
+char * strmove(char *dest, const char *src)
+{
+	size_t len = strlen(src);
+	memmove(dest, src, len);
+	*(dest+len) = '\0';
+	return dest;
+}
+
 void alphastrip(char *p)
 {
 	for (; *p; ++p) {
 		if (!isalpha(*p)) {
-			strcpy(p, p+1);
+			strmove(p, p+1);
 			alphastrip(p);
 		}
 	}
