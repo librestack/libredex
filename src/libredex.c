@@ -38,11 +38,16 @@
 #define SHA_DIGEST_LENGTH 20
 #endif
 
-#define TOKSEP "?!\"'$%^&*()-_=+[]{};:@~#,.<>/\\|` "
+#define TOKSEP " "
 
 void cleantoken(char *tok)
 {
 	char *p;
+
+	/* strip non-alpha characters, according to current locale */
+	for (p = tok; *p; ++p) if (!isalpha(*p)) strcpy(p, p+1);
+
+	/* convert to lowercase */
 	for (p = tok; *p; ++p) *p = tolower(*p);
 }
 
