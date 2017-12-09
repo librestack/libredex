@@ -40,12 +40,22 @@
 
 #define TOKSEP " "
 
+void alphastrip(char *p)
+{
+	for (; *p; ++p) {
+		if (!isalpha(*p)) {
+			strcpy(p, p+1);
+			alphastrip(p);
+		}
+	}
+}
+
 void cleantoken(char *tok)
 {
 	char *p;
 
 	/* strip non-alpha characters, according to current locale */
-	for (p = tok; *p; ++p) if (!isalpha(*p)) strcpy(p, p+1);
+	alphastrip(tok);
 
 	/* convert to lowercase */
 	for (p = tok; *p; ++p) *p = tolower(*p);
