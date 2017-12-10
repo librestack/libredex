@@ -123,16 +123,18 @@ int main(int argc, char **argv)
 		}
 
 		/* index by keyword */
-		key = strtok(text->valuestring, TOKSEP);
-		while (key != NULL) {
-			cleantoken(key);
-			fprintf(stderr, "\tkey: %s\n", key);
-			rc = lc_db_idx(ctx, "message", "keyword", msg->hash, SHA_DIGEST_LENGTH,
-				key, strlen(key), mode);
-			if (rc != 0)
-				fprintf(stderr, "error writing index key %s\n", key);
+		if (text != NULL) {
+			key = strtok(text->valuestring, TOKSEP);
+			while (key != NULL) {
+				cleantoken(key);
+				fprintf(stderr, "\tkey: %s\n", key);
+				rc = lc_db_idx(ctx, "message", "keyword", msg->hash, SHA_DIGEST_LENGTH,
+					key, strlen(key), mode);
+				if (rc != 0)
+					fprintf(stderr, "error writing index key %s\n", key);
 
-			key = strtok(NULL, TOKSEP);
+				key = strtok(NULL, TOKSEP);
+			}
 		}
 
 		cJSON_Delete(root);
