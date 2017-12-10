@@ -78,6 +78,7 @@ int main(int argc, char **argv)
 	while(1) { /* FIXME: temporary hack */
 
 	ctx = lc_ctx_new();
+	lc_db_open(ctx, NULL);
 	rc = lc_query_new(ctx, &q);
 
 	assert(rc == 0);
